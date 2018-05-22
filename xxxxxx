@@ -21,3 +21,122 @@ index.blade.php更新前
             {!! link_to_route('tasks.create', '新規タスクの投稿') !!}
 
 @endsection
+
+
+
+
+
+index.blade.php bootstrap改良前
+@extends('layouts.app')
+
+@section('content')
+
+ <h1>タスク一覧</h1>
+
+    
+    
+ @if (count($tasks) > 0)
+   <ul>
+    @foreach ($tasks as $task)
+                <li>{!! link_to_route('tasks.show', $task->id, ['id' => $task->id]) !!} : {{ $task->status }} > {{ $task->content }}</li>
+            @endforeach
+    </ul>
+ @endif
+            
+            
+            
+            {!! link_to_route('tasks.create', '新規タスクの投稿') !!}
+
+@endsection
+
+
+
+
+
+
+show.blade.php bootstrap改良前
+
+@extends('layouts.app')
+
+@section('content')
+
+<h1>id = {{ $task->id }} のタスク詳細ページ</h1>
+
+
+    <p>ステータス: {{ $task->status }}</p>
+    <p>タスク: {{ $task->content }}</p>
+
+
+{!! link_to_route('tasks.edit', 'このタスクを編集', ['id' => $task->id]) !!}
+
+
+{!! Form::model($task, ['route' => ['tasks.destroy', $task->id], 'method' => 'delete']) !!}
+        {!! Form::submit('削除') !!}
+    {!! Form::close() !!}
+
+
+@endsection
+
+
+
+create.blade.php bootstrap改良前
+
+@extends('layouts.app')
+
+@section('content')
+
+<h1>タスク新規作成ページ</h1>
+
+
+
+    
+    
+
+    {!! Form::model($task, ['route' => 'tasks.store']) !!}
+
+        {!! Form::label('status', 'ステータス:') !!}
+        {!! Form::text('status') !!}
+
+        {!! Form::label('content', 'メッセージ:') !!}
+        {!! Form::text('content') !!}
+
+        {!! Form::submit('投稿') !!}
+
+    {!! Form::close() !!}
+
+
+
+
+
+@endsection
+
+
+
+
+edit.blade.php bootstrap改良前
+
+@extends('layouts.app')
+
+@section('content')
+
+<h1>id: {{ $task->id }} のタスク編集ページ</h1>
+
+
+
+    
+
+    {!! Form::model($task, ['route' => ['tasks.update', $task->id], 'method' => 'put']) !!}
+
+
+        {!! Form::label('status', 'ステータス:') !!}
+        {!! Form::text('status') !!}
+
+        {!! Form::label('content', 'タスク:') !!}
+        {!! Form::text('content') !!}
+
+        {!! Form::submit('更新') !!}
+
+    {!! Form::close() !!}
+
+
+@endsection
