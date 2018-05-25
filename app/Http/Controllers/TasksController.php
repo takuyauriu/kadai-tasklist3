@@ -9,6 +9,7 @@ use App\Http\Requests;    // 追加
 
 use App\Task;    // 追加
 
+use App\Http\Controllers\Controller;    // 追加
 
 
 class TasksController extends Controller
@@ -20,11 +21,21 @@ class TasksController extends Controller
      */
     public function index()
     {
-        $tasks = Task::all();
+        $data = [];
+        if (\Auth::check()) {
+            $user = \Auth::user();
+            $tasks = $user->tasks()->orderBy('created_at', 'desc')->paginate(10);
 
-        return view('tasks.index', [
-            'tasks' => $tasks,
-        ]);
+            $data = [
+                'user' => $user,
+                'tasks' => $tasks,
+            ];
+            $data += $this->counts($user);
+            return view('tasks.index', $data);
+        }else {
+            return view('welcome');
+        }
+    
     }
 
     /**
@@ -51,16 +62,15 @@ class TasksController extends Controller
      
     public function store(Request $request)
     {
-        
         $this->validate($request, [
-            'status' => 'required|max:191',   // 追加
-            'content' => 'required|max:191',
+            'content' => 'required|max:255',
+        ]);
+
+        $request->user()->tasks()->create([
+            'status' => $request->status,
+            'content' => $request->content,
         ]);
         
-        $task = new Task;
-        $task->status = $request->status;    // 追加
-        $task->content = $request->content;
-        $task->save();
 
         return redirect('/');
     }
@@ -136,9 +146,12 @@ class TasksController extends Controller
      
     public function destroy($id)
     {
-        $task = Task::find($id);
-        $task->delete();
+        $task = \App\Task::find($id);
 
-        return redirect('/');
+        if (\Auth::user()->id === $task->user_id) {
+            $task->delete();
+        }
+
+        return redirect()->back();
     }
 }
